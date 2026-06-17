@@ -18,8 +18,10 @@ impl Item {
         Item::HealingStaff(String::from("Weakness destroyer"), 20)
     }
 
-    pub fn give_sword() -> Self {
-        Item::Sword(String::from("KILLer"), 30)
+    pub fn give_sword(sword_type: &str) -> Self {
+        match sword_type {
+            "basic" | _ => Item::Sword(String::from("Copper knife"), 10),
+        }
     }
 
     pub fn print(&self) {

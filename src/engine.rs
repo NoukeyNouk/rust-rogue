@@ -1,6 +1,6 @@
 use text_io::read;
 use text_io::try_read;
-use crate::player::Action;
+use crate::actions::Action;
 use crate::player::Player;
 use crate::items::Item;
 
@@ -70,10 +70,12 @@ fn choose_item(inventory: &Vec<Item>) -> usize { // can panic!!
 pub fn game_loop() {
     let mut player = Player::new();
     loop {
-        let option = choose_action(&player);
-        match option {
-            None => return,
-            Some(action) => player.act(action),
+        let Some(action) = choose_action(&player) else {
+            return;
+        };
+        match action {
+            Action::EquipWeapon(index) => player.equip_weapon(index),
+            _ => todo!(),
         }
     }
 }

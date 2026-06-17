@@ -1,17 +1,6 @@
 use crate::items::Item;
 use rand::Rng;
 
-pub enum Action {
-    // Left,
-    // Right,
-    // Down,
-    // Up,
-    SkipTurn,
-    EquipWeapon(usize),
-    Heal,
-    Attack,
-    Research,
-}
 
 pub struct Player {
     hp: i32,
@@ -29,7 +18,7 @@ impl Player {
             inventory: Vec::with_capacity(10),
         };
 
-        player.inventory.push(Item::give_sword());
+        player.inventory.push(Item::give_sword("basic"));
         player
     }
 
@@ -49,24 +38,34 @@ impl Player {
         print!("\n");
     }
 
-    pub fn act(&mut self, action: Action) {
-        match action {
-            Action::EquipWeapon(index) => {
-                if let Some(weapon) = self.weapon.take() {
-                    self.inventory.push(weapon);
-                    let len = self.inventory.len();
-                    self.inventory.swap(len - 1, index);
-                }
-                self.weapon = self.inventory.pop();
+    pub fn equip_weapon(&mut self, index: usize) {
+        let len = self.inventory.len();
 
-                print!("New weapon [");
-                self.weapon.as_ref().unwrap().print();
-                print!("] equipped!");
-            }
-            Action::SkipTurn => (),
-            Action::Research => println!("You may now think you found smthing."),
-            Action::Heal | Action::Attack => todo!(),
-        
+        assert!(
+            index < len,
+            "No such index {} in inventory of len {}",
+            index,
+            len
+        );
+
+        if let Some(weapon) = self.weapon.take() {
+            self.inventory.push(weapon);
+            self.inventory.swap(len - 1, index);
         }
+        self.weapon = self.inventory.pop();
+
+        print!("New weapon [");
+        self.weapon.as_ref().unwrap().print();
+        print!("] equipped!");
     }
+
+    // pub fn act(&mut self, action: Action) {
+    //     match action {
+    //         Action::EquipWeapon(index) => (),
+    //         Action::SkipTurn => (),
+    //         Action::Research => println!("You may now think you found smthing."),
+    //         Action::Heal | Action::Attack => todo!(),
+    //
+    //     }
+    // }
 }
