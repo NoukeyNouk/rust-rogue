@@ -7,6 +7,8 @@ pub struct Player {
     max_hp: i32,
     weapon: Option<Item>,
     pub inventory: Vec<Item>,
+    x: i32,
+    y: i32,
 }
 
 impl Player {
@@ -16,6 +18,8 @@ impl Player {
             max_hp: 100,
             weapon: None,
             inventory: Vec::with_capacity(10),
+            x: 3,
+            y: 3,
         };
 
         player.inventory.push(Item::give_sword("basic"));
@@ -56,16 +60,6 @@ impl Player {
 
         print!("New weapon [");
         self.weapon.as_ref().unwrap().print();
-        print!("] equipped!");
+        print!("] equipped!\n");
     }
-
-    // pub fn act(&mut self, action: Action) {
-    //     match action {
-    //         Action::EquipWeapon(index) => (),
-    //         Action::SkipTurn => (),
-    //         Action::Research => println!("You may now think you found smthing."),
-    //         Action::Heal | Action::Attack => todo!(),
-    //
-    //     }
-    // }
 }

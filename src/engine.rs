@@ -3,6 +3,7 @@ use text_io::try_read;
 use crate::actions::Action;
 use crate::player::Player;
 use crate::items::Item;
+use crate::map::Map;
 
 pub fn infinite_read() -> char {
     let mut command: char;
@@ -69,6 +70,7 @@ fn choose_item(inventory: &Vec<Item>) -> usize { // can panic!!
 
 pub fn game_loop() {
     let mut player = Player::new();
+    let mut map = Map::new();
     loop {
         let Some(action) = choose_action(&player) else {
             return;
@@ -77,5 +79,6 @@ pub fn game_loop() {
             Action::EquipWeapon(index) => player.equip_weapon(index),
             _ => todo!(),
         }
+        map.print();
     }
 }

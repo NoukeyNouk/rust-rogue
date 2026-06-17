@@ -5,6 +5,7 @@ pub mod player;
 pub mod items;
 pub mod enemies;
 pub mod actions;
+pub mod map;
 
 use engine::game_loop;
 
