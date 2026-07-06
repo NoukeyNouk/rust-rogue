@@ -57,4 +57,36 @@ impl Map {
             print!("\n");
         }
     }
+
+    pub fn place_player(&mut self, coords: (usize, usize)) {
+        self.data[coords.0][coords.1] = Cell::Player;
+    }
+
+    pub fn can_move(&self, x: usize, y: usize) -> bool {
+        if x < 2 || y < 2 {
+            return false;
+        }
+        if x > self.width - 3 || y > self.height - 3 {
+            return false;
+        }
+        true
+    }
+
+    pub fn cut_coords(&self, coords: (usize, usize)) -> (usize, usize) {
+        let mut x = coords.0;
+        let mut y = coords.1;
+        if x < 2 {
+            x = 2;
+        }
+        if y < 2 {
+            y = 2;
+        }
+        if x > self.width - 3 {
+            x = self.width - 3;
+        }
+        if y > self.height - 3 {
+            y = self.height - 3;
+        }
+        (x, y)
+    }
 }

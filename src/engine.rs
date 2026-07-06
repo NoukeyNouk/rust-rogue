@@ -1,9 +1,53 @@
+use rand::Rng;
 use text_io::read;
 use text_io::try_read;
 use crate::actions::Action;
 use crate::player::Player;
 use crate::items::Item;
 use crate::map::Map;
+
+strcut World {
+    player: Player,
+    map: Map,
+}
+
+enum GameState {
+    Normal,
+    Research,
+    Fight,
+}
+
+
+pub fn game_loop() {
+    let mut player = Player::new();
+    let mut map = Map::new();
+    let x = rand::thread_rng().gen_range(1..=30);
+    let y = rand::thread_rng().gen_range(1..=30);
+    player.set_coords(map.cut_coords((x, y)));
+    map.place_player(player.coords());
+    let mut world = {
+        player: player,
+        map: map,
+    };
+
+    loop {
+        map.print();
+        let Some(action) = choose_action(&player) else {
+            return;
+        };
+        match action {
+            Action::EquipWeapon(index) => player.equip_weapon(index),
+            Action::SkipTurn => (),
+            Action::Research => research_loop(),
+            _ => todo!(),
+        }
+    }
+}
+
+fn research_loop() {
+
+}
+
 
 pub fn infinite_read() -> char {
     let mut command: char;
@@ -68,17 +112,3 @@ fn choose_item(inventory: &Vec<Item>) -> usize { // can panic!!
     index - 1
 }
 
-pub fn game_loop() {
-    let mut player = Player::new();
-    let mut map = Map::new();
-    loop {
-        let Some(action) = choose_action(&player) else {
-            return;
-        };
-        match action {
-            Action::EquipWeapon(index) => player.equip_weapon(index),
-            _ => todo!(),
-        }
-        map.print();
-    }
-}

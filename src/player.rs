@@ -7,8 +7,8 @@ pub struct Player {
     max_hp: i32,
     weapon: Option<Item>,
     pub inventory: Vec<Item>,
-    x: i32,
-    y: i32,
+    x: usize,
+    y: usize,
 }
 
 impl Player {
@@ -18,8 +18,8 @@ impl Player {
             max_hp: 100,
             weapon: None,
             inventory: Vec::with_capacity(10),
-            x: 3,
-            y: 3,
+            x: 0,
+            y: 0,
         };
 
         player.inventory.push(Item::give_sword("basic"));
@@ -61,5 +61,14 @@ impl Player {
         print!("New weapon [");
         self.weapon.as_ref().unwrap().print();
         print!("] equipped!\n");
+    }
+
+    pub fn set_coords(&mut self, coords: (usize, usize)) {
+        self.x = coords.0;
+        self.y = coords.1;
+    }
+
+    pub fn coords(&self) -> (usize, usize) {
+        (self.x, self.y)
     }
 }
