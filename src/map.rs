@@ -62,11 +62,17 @@ impl Map {
         self.data[coords.0][coords.1] = Cell::Player;
     }
 
-    pub fn can_move(&self, x: usize, y: usize) -> bool {
-        if x < 2 || y < 2 {
+    pub fn move_player(&mut self, source: (usize, usize), target: (usize, usize)) {
+        self.data[source.0][source.1] = Cell::Floor;
+        self.data[target.0][target.1] = Cell::Player;
+
+    }
+
+    pub fn can_move(&self, coords: (usize, usize)) -> bool {
+        if coords.0 < 2 || coords.1 < 2 {
             return false;
         }
-        if x > self.width - 3 || y > self.height - 3 {
+        if coords.0 > self.width - 3 || coords.1 > self.height - 3 {
             return false;
         }
         true

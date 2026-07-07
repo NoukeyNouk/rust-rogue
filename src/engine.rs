@@ -6,7 +6,7 @@ use crate::player::Player;
 use crate::items::Item;
 use crate::map::Map;
 
-strcut World {
+struct World {
     player: Player,
     map: Map,
 }
@@ -15,39 +15,80 @@ enum GameState {
     Normal,
     Research,
     Fight,
+    Quit,
 }
 
 
 pub fn game_loop() {
     let mut player = Player::new();
     let mut map = Map::new();
+    let mut game_state = GameState::Normal;
     let x = rand::thread_rng().gen_range(1..=30);
     let y = rand::thread_rng().gen_range(1..=30);
     player.set_coords(map.cut_coords((x, y)));
     map.place_player(player.coords());
-    let mut world = {
+    let mut world = World {
         player: player,
         map: map,
     };
 
     loop {
-        map.print();
-        let Some(action) = choose_action(&player) else {
-            return;
-        };
-        match action {
-            Action::EquipWeapon(index) => player.equip_weapon(index),
-            Action::SkipTurn => (),
-            Action::Research => research_loop(),
+        match &game_state {
+            GameState::Normal => handle_normal(&mut world, &mut game_state),
+            GameState::Research => handle_research(&mut world, &mut game_state),
+            GameState::Quit => break,
             _ => todo!(),
         }
     }
 }
 
-fn research_loop() {
-
+fn handle_normal(world: &mut World, game_state: &mut GameState) {
+    world.map.print();
+    let action = choose_action(&world.player);
+    match action {
+        Action::EquipWeapon(index) => world.player.equip_weapon(index),
+        Action::SkipTurn => (),
+        Action::Research => *game_state = GameState::Research,
+        Action::Quit => *game_state = GameState::Quit,
+        _ => todo!(),
+    }
 }
 
+fn handle_research(world: &mut World, game_state: &mut GameState) {
+    world.map.print();
+    println!();
+    let action_buffer: String = read!();
+    for action in action_buffer.as_bytes().iter() {
+        match *action as char {
+            'h' | 'a' => move_player(world, "left"),
+            'j' | 's' => move_player(world, "down"),
+            'l' | 'd' => move_player(world, "right"),
+            'k' | 'w' => move_player(world, "up"),
+            'q' => {
+                *game_state = GameState::Normal;
+                return;
+            }
+            _ => println!("bob1111111111111k"),
+        }
+    }
+}
+
+
+fn move_player(world: &mut World, direction: &str) {
+    let source = world.player.coords();
+    let mut target = source;
+    match direction {
+        "right" => target.1 += 1,
+        "left" => target.1 -= 1,
+        "up" => target.0 -= 1,
+        "down" => target.0 += 1,
+        _ => panic!("Unknown direction for moving player"),
+    }
+    if world.map.can_move(target) {
+        world.player.set_coords(target);
+        world.map.move_player(source, target);
+    }
+}
 
 pub fn infinite_read() -> char {
     let mut command: char;
@@ -61,7 +102,7 @@ pub fn infinite_read() -> char {
     return command;
 }
 
-fn choose_action(player: &Player) -> Option<Action> {
+fn choose_action(player: &Player) -> Action {
     println!("\nYour turn!!");
     println!("Avaliable actions:");
     println!("0. exit dungeon.");
@@ -76,25 +117,25 @@ fn choose_action(player: &Player) -> Option<Action> {
         end = 1;
         command = read!();
         match command {
-            '0' => return None,
-            '1' => return Some(Action::Attack),
-            '2' => return Some(Action::Heal),
+            '0' => return Action::Quit,
+            '1' => return Action::Attack,
+            '2' => return Action::Heal,
             '3' => {
                 player.print_inventory();
                 if player.inventory.is_empty() {
-                    return Some(Action::SkipTurn);
+                    return Action::SkipTurn;
                 }
                 let chosen = choose_item(&player.inventory);
-                return Some(Action::EquipWeapon(chosen));
+                return Action::EquipWeapon(chosen);
             }
-            '4' => return Some(Action::Research),
+            '4' => return Action::Research,
             _ => {
                 println!("Unknown command, try again.");
                 end = 0;
             }
         }
     }
-    None
+    panic!("unreacheble code fragment");
 }
 
 fn choose_item(inventory: &Vec<Item>) -> usize { // can panic!!
