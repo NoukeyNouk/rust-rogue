@@ -68,7 +68,7 @@ fn handle_research(world: &mut World, game_state: &mut GameState) {
                 *game_state = GameState::Normal;
                 return;
             }
-            _ => println!("bob1111111111111k"),
+            _ => println!("wasd or hjkl for moving, q - stop research"),
         }
     }
 }
@@ -93,7 +93,7 @@ fn move_player(world: &mut World, direction: &str) {
 pub fn infinite_read() -> char {
     let mut command: char;
     loop {
-        command = read!();
+        command = read_char();
         match command {
             'Y'| 'y' | 'n' | 'N' => break,
             _ => println!("put only 'y' or 'n'."),
@@ -112,10 +112,10 @@ fn choose_action(player: &Player) -> Action {
     println!("4. Find stuff!!");
 
     let mut end = 0;
-    let mut command: char;
     while end != 1 {
         end = 1;
-        command = read!();
+        let command = read_char();
+
         match command {
             '0' => return Action::Quit,
             '1' => return Action::Attack,
@@ -153,3 +153,17 @@ fn choose_item(inventory: &Vec<Item>) -> usize { // can panic!!
     index - 1
 }
 
+pub fn read_char() -> char {
+    let mut command: char;
+    loop {
+        let option: Result<char, _> = try_read!();
+        match option {
+            Ok(c) => {
+                command = c;
+                break;
+            }
+            Err(_) => println!("Unknown command"),
+        }
+    }
+    command
+}

@@ -1,4 +1,4 @@
-use text_io::read;
+use text_io::try_read;
 
 pub mod engine;
 pub mod player;
@@ -8,13 +8,14 @@ pub mod actions;
 pub mod map;
 
 use engine::game_loop;
+use engine::read_char;
 
 fn main() {
     println!("It's time to explore The depths!");
     println!("0. not for me (exit).");
     println!("1. Let's GO!!");
 
-    let command: char = read!();
+    let command = read_char();
 
     match command {
         '0' => (),
