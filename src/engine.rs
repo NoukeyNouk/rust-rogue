@@ -27,6 +27,11 @@ pub fn game_loop() {
     let y = rand::thread_rng().gen_range(1..=30);
     player.set_coords(map.cut_coords((x, y)));
     map.place_player(player.coords());
+
+    let x = rand::thread_rng().gen_range(1..=30);
+    let y = rand::thread_rng().gen_range(1..=30);
+    map.place_spawner(map.cut_coords((x, y)), 3);
+
     let mut world = World {
         player: player,
         map: map,
@@ -112,33 +117,36 @@ fn choose_action(player: &Player) -> Action {
     println!("4. Find stuff!!");
 
     let mut end = 0;
+    let mut command: char;
+    let mut chosen: Action = Action::SkipTurn;
     while end != 1 {
         end = 1;
-        let command = read_char();
+        command = read_char();
 
         match command {
-            '0' => return Action::Quit,
-            '1' => return Action::Attack,
-            '2' => return Action::Heal,
+            '0' => chosen = Action::Quit,
+            '1' => chosen = Action::Attack,
+            '2' => chosen = Action::Heal,
             '3' => {
                 player.print_inventory();
                 if player.inventory.is_empty() {
-                    return Action::SkipTurn;
+                    chosen = Action::SkipTurn;
+                    break;
                 }
-                let chosen = choose_item(&player.inventory);
-                return Action::EquipWeapon(chosen);
+                let chosen_item = choose_item(&player.inventory);
+                chosen = Action::EquipWeapon(chosen_item);
             }
-            '4' => return Action::Research,
+            '4' => chosen = Action::Research,
             _ => {
                 println!("Unknown command, try again.");
                 end = 0;
             }
         }
     }
-    panic!("unreacheble code fragment");
+    chosen
 }
 
-fn choose_item(inventory: &Vec<Item>) -> usize { // can panic!!
+fn choose_item(inventory: &Vec<Item>) -> usize {
     let mut index: usize;
     loop {
         index = match try_read!() {
@@ -154,7 +162,7 @@ fn choose_item(inventory: &Vec<Item>) -> usize { // can panic!!
 }
 
 pub fn read_char() -> char {
-    let mut command: char;
+    let command: char;
     loop {
         let option: Result<char, _> = try_read!();
         match option {
@@ -166,4 +174,8 @@ pub fn read_char() -> char {
         }
     }
     command
+}
+
+fn random_coords() -> (usize, usize) {
+    let x = rand::thread_rng().gen_range(1..=30);
 }

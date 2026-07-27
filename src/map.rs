@@ -1,3 +1,5 @@
+use crate::map::Cell::Spawner;
+
 enum Cell {
     Floor,
     Wall,
@@ -6,12 +8,20 @@ enum Cell {
     Barrel,
     Enemy,
     Void,
+    Spawner(u8),
 }
 
 pub struct Map {
     data: Vec<Vec<Cell>>,
     width: usize,
     height: usize,
+}
+
+fn can_stand(cell: &Cell) -> bool {
+    match cell {
+        Cell::Floor => true,
+        _ => false,
+    }
 }
 
 impl Map {
@@ -23,7 +33,7 @@ impl Map {
         };
         for i in 0..map.width {
             map.data.push(Vec::with_capacity(9));
-            for j in 0..map.height {
+            for _ in 0..map.height {
                 map.data[i].push(Cell::Floor);
             }
         }
@@ -50,7 +60,9 @@ impl Map {
                     Cell::Wall => '#',
                     Cell::Player => '@',
                     Cell::Void => ' ',
-                    _ => '?',
+                    Cell::Spawner(power) => ('0' as u8 + power) as char,
+                    Cell::Enemy => 'E',
+                    Cell::Barrel => 'B',
                 };
                 print!("{form}");
             }
@@ -62,6 +74,14 @@ impl Map {
         self.data[coords.0][coords.1] = Cell::Player;
     }
 
+    pub fn place_spawner(&mut self, coords: (usize, usize), power: u8) {
+        self.data[coords.0][coords.1] = Cell::Spawner(power);
+    }
+
+    pub fn place_enemy(&mut self, coords: (usize, usize)) {
+        self.data[coords.0][coords.1] = Cell::Enemy;
+    }
+
     pub fn move_player(&mut self, source: (usize, usize), target: (usize, usize)) {
         self.data[source.0][source.1] = Cell::Floor;
         self.data[target.0][target.1] = Cell::Player;
@@ -69,14 +89,9 @@ impl Map {
     }
 
     pub fn can_move(&self, coords: (usize, usize)) -> bool {
-        if coords.0 < 2 || coords.1 < 2 {
-            return false;
-        }
-        if coords.0 > self.width - 3 || coords.1 > self.height - 3 {
-            return false;
-        }
-        true
+        can_stand(&self.data[coords.0][coords.1])
     }
+
 
     pub fn cut_coords(&self, coords: (usize, usize)) -> (usize, usize) {
         let mut x = coords.0;
@@ -96,3 +111,4 @@ impl Map {
         (x, y)
     }
 }
+
