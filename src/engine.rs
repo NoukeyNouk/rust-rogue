@@ -23,14 +23,21 @@ pub fn game_loop() {
     let mut player = Player::new();
     let mut map = Map::new();
     let mut game_state = GameState::Normal;
-    let x = rand::thread_rng().gen_range(1..=30);
-    let y = rand::thread_rng().gen_range(1..=30);
-    player.set_coords(map.cut_coords((x, y)));
-    map.place_player(player.coords());
 
-    let x = rand::thread_rng().gen_range(1..=30);
-    let y = rand::thread_rng().gen_range(1..=30);
-    map.place_spawner(map.cut_coords((x, y)), 3);
+    let coords = map.cut_coords(random_coords());
+    map.place_spawner(coords, 3);
+
+
+
+    let mut coords = map.cut_coords(random_coords());
+    loop {
+        if map.can_move(coords) {
+            break;
+        }
+        coords = map.cut_coords(random_coords());
+    }
+    player.set_coords(coords);
+    map.place_player(coords);
 
     let mut world = World {
         player: player,
@@ -178,4 +185,6 @@ pub fn read_char() -> char {
 
 fn random_coords() -> (usize, usize) {
     let x = rand::thread_rng().gen_range(1..=30);
+    let y = rand::thread_rng().gen_range(1..=30);
+    (x, y)
 }
